@@ -11,6 +11,8 @@ from .models import Recipe, AmountIngredient, Favorite, Cart, Tag
 
 
 class Base64ImageField(serializers.ImageField):
+    """Поле base64."""
+
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -20,6 +22,8 @@ class Base64ImageField(serializers.ImageField):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
+    """Сериализатор количества ингредиентов."""
+
     name = serializers.ReadOnlyField(source='ingredient.name')
     id = serializers.ReadOnlyField(source='ingredient.id')
     measurement_unit = serializers.ReadOnlyField(
@@ -32,6 +36,8 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
 
 class ListRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор списка рецептов."""
+
     author = UserModelSerializer()
     tags = TagSerializer(
         many=True,
@@ -80,7 +86,10 @@ class ListRecipeSerializer(serializers.ModelSerializer):
         return model.objects.filter(user=user, recipe=obj).exists()
 
 
+# Или лучше было отдельно не создавать класс с полями?
 class RecipeAndUserSerializerMixin(serializers.Serializer):
+    """Миксин рецептов и пользователей."""
+
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username',
@@ -96,6 +105,8 @@ class FavoriteSerializer(
     RecipeAndUserSerializerMixin,
     serializers.ModelSerializer,
 ):
+    """Сериализатор избранных рецептов."""
+
     class Meta:
         model = Favorite
         fields = '__all__'
@@ -113,6 +124,8 @@ class CartSerializer(
     RecipeAndUserSerializerMixin,
     serializers.ModelSerializer,
 ):
+    """Сериализатор списка покупок."""
+
     class Meta:
         model = Cart
         fields = '__all__'
@@ -127,6 +140,8 @@ class CartSerializer(
 
 
 class AmountSerializer(serializers.ModelSerializer):
+    """Сериализатор количества ингредиентов."""
+
     id = serializers.IntegerField()
 
     class Meta:
@@ -138,6 +153,8 @@ class AmountSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreatedSerializer(serializers.ModelSerializer):
+    """Сериализатор создания рецептов."""
+
     image = Base64ImageField(required=False, allow_null=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
@@ -174,11 +191,21 @@ class RecipeCreatedSerializer(serializers.ModelSerializer):
         return ingredient
 
     def create(self, data):
-        ingredients = data.pop('ingredients')
-        tags = data.pop('tags')
         recipe = Recipe.objects.create(
             author=self.context.get('request').user, **data
         )
+        return self._set_recipe_data(data, recipe)
+
+    def update(self, recipe, data):
+        AmountIngredient.objects.filter(recipe=recipe).delete()
+        return self._set_recipe_data(data, recipe)
+
+    def to_representation(self, instance):
+        return ListRecipeSerializer(instance).data
+
+    def _set_recipe_data(self, data, recipe):
+        ingredients = data.pop('ingredients')
+        tags = data.pop('tags')
         AmountIngredient.objects.bulk_create(
             [
                 AmountIngredient(

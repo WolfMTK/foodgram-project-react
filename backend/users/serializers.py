@@ -8,6 +8,8 @@ from .models import User, Subscription
 
 
 class SubscriptionMixin:
+    """Миксин подписки."""
+
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request is None:
@@ -19,6 +21,8 @@ class SubscriptionMixin:
 
 
 class UserCreateMixin:
+    """Миксин создание пользователя."""
+
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
@@ -41,12 +45,16 @@ class UserCreateMixin:
             )
         return username
 
+    # Или лучше было не выносить отдельно в
+    # функцию validate_password проверку пароля?
     def validate_password(self, password):
         validate_password(password)
         return password
 
 
 class UserModelSerializer(SubscriptionMixin, UserCreateMixin, UserSerializer):
+    """Пользовательский сериализатор."""
+
     username = serializers.CharField(
         max_length=150,
         validators=(UnicodeUsernameValidator,),
@@ -71,7 +79,9 @@ class UserModelSerializer(SubscriptionMixin, UserCreateMixin, UserSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
 
-class UserAndSubscriptionSerializer(serializers.ModelSerializer):
+class UserSubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор подписки пользователя."""
+
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username',
@@ -102,6 +112,8 @@ class UserAndSubscriptionSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор рецептов."""
+
     class Meta:
         model = Recipe
         fields = (
@@ -116,6 +128,8 @@ class SubscriptionSerializer(
     SubscriptionMixin,
     serializers.ModelSerializer,
 ):
+    """Сериализатор подписки."""
+
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     recipes = RecipeSerializer(many=True, read_only=True)

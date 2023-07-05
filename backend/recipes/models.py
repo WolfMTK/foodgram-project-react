@@ -100,6 +100,8 @@ class Favorite(models.Model):
 
 
 class AmountIngredient(models.Model):
+    """Модель количества ингредиентов."""
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,

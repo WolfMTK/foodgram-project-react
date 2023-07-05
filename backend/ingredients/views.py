@@ -6,6 +6,8 @@ from core.filters import BackendSearchFilter
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet ингредиентов."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (permissions.AllowAny,)

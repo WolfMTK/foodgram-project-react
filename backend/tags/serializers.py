@@ -5,6 +5,8 @@ from .models import Tag
 
 
 class Hex2NameColor(serializers.Field):
+    """Поле цвета."""
+
     def to_representation(self, value):
         return value
 
@@ -17,6 +19,8 @@ class Hex2NameColor(serializers.Field):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Сериализатор тегов."""
+
     color = Hex2NameColor()
 
     class Meta:

@@ -24,9 +24,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @decorators.action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk=None, *args, **kwargs):
         if request.method == 'POST':
-            return response.Response(
-                self._get_favorite_data(request, pk, *args, **kwargs),
-                status.HTTP_201_CREATED,
+            return self._send_response_data(
+                request, FavoriteSerializer, pk, *args, **kwargs
             )
         favorite = Favorite.objects.filter(
             user_id=request.user.id, recipe_id=pk
@@ -42,10 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @decorators.action(detail=True, methods=('post', 'delete'))
     def shopping_cart(self, request, pk=None, *args, **kwargs):
         if request.method == 'POST':
-            return response.Response(
-                self._get_cart_data(request, pk, *args, **kwargs),
-                status.HTTP_201_CREATED,
-            )
+            return self._send_response_data(request, CartSerializer, pk)
         cart = Cart.objects.filter(user_id=request.user.id, recipe_id=pk)
         if not cart.exists():
             return response.Response(
@@ -55,40 +51,37 @@ class RecipeViewSet(viewsets.ModelViewSet):
         cart.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return response.Response(
-            ListRecipeSerializer(serializer.save()).data,
-            status.HTTP_201_CREATED,
-        )
-
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
             return (permissions.AllowAny(),)
-        elif self.action in ('destroy',):
+        elif self.action in ('destroy', 'partial_update'):
             return (IsAuthorPermission(),)
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.action in ('create',):
+        if self.action in ('create', 'partial_update'):
             return RecipeCreatedSerializer
         return ListRecipeSerializer
 
-    def _get_favorite_data(self, request, pk=None, *args, **kwargs):
+    def _send_response_data(self, request, serializer, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = FavoriteSerializer(
-            data={'user': request.user, 'recipe': recipe}
-        )
+        # error handling: MultipleObjectsReturned
+        if request.user == recipe.author:
+            return response.Response(
+                {'error': self._get_error_message(serializer())},
+                status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = serializer(data={'user': request.user, 'recipe': recipe})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return RecipeSerializer(recipe).data
+        return response.Response(
+            RecipeSerializer(recipe).data,
+            status.HTTP_201_CREATED,
+        )
 
-    def _get_cart_data(self, request, pk=None, *args, **kwargs):
-        recipe = get_object_or_404(Recipe, id=pk)
-        serializer = CartSerializer(
-            data={'user': request.user, 'recipe': recipe}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return RecipeSerializer(recipe).data
+    def _get_error_message(self, serializer):
+        if type(serializer).__name__ == 'FavoriteSerializer':
+            return 'Собственный рецепт невозможно добавить в избранное!'
+        elif type(serializer).__name__ == 'CartSerializer':
+            return 'Собственный рецепт невозможно добавить в список покупок!'
+        return 'Произошла ошибка!'

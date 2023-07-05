@@ -4,7 +4,7 @@ from djoser.views import UserViewSet as DjoserViewSet
 
 from core.pagination import PageNumberAndLimit
 
-from .serializers import SubscriptionSerializer, UserAndSubscriptionSerializer
+from .serializers import SubscriptionSerializer, UserSubscriptionSerializer
 
 from .models import Subscription, User
 
@@ -56,9 +56,10 @@ class UserViewSet(DjoserViewSet):
         if self.action == 'subscriptions':
             return SubscriptionSerializer
         if self.action == 'subscribe':
-            return UserAndSubscriptionSerializer
+            return UserSubscriptionSerializer
         return super().get_serializer_class()
 
+    # Или всё же в subscribe это добавить, а не отдельным методом?
     def _get_subscribe_data(self, request, pk=None, *args, **kwargs):
         subscribed = get_object_or_404(User, id=pk)
         serializer = self.get_serializer(

@@ -21,7 +21,7 @@ class SubscriptionMixin:
 
 
 class UserCreateMixin:
-    """Миксин создание пользователя."""
+    """Миксин создания пользователя."""
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -62,6 +62,8 @@ class UserModelSerializer(SubscriptionMixin, UserCreateMixin, UserSerializer):
     email = serializers.EmailField(max_length=254)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
+    # is_subscribed вынести тоже в миксин?
+    # Или так оставить лучше?
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -149,4 +151,4 @@ class SubscriptionSerializer(
         read_only_fields = ('is_subscribed', 'recipes_count', 'recipes')
 
     def get_recipes_count(self, obj):
-        return User.objects.filter(recipes__author=obj).count()
+        return obj.recipes.count()

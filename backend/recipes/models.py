@@ -23,12 +23,6 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Тег',
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        blank=True,
-        related_name='recipes',
-        verbose_name='Ингредиенты',
-    )
     name = models.CharField(max_length=200, verbose_name='Название')
     text = models.TextField(verbose_name='Описание')
     image = models.ImageField(

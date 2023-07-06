@@ -2,7 +2,7 @@ from djoser.serializers import UserSerializer
 from rest_framework import serializers, validators
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
-from core.validations import validate_password
+from services.validations import validate_password
 from recipes.models import Recipe
 from .models import User, Subscription
 

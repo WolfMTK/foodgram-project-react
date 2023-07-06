@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 
+from services.filters import BackendSearchFilter
 from .models import Ingredient
 from .serializers import IngredientSerializer
-from core.filters import BackendSearchFilter
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

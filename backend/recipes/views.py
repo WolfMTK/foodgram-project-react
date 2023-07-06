@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, decorators, response, status
 from rest_framework.generics import get_object_or_404
 
-from core.pagination import PageNumberAndLimit
+from services.pagination import PageNumberAndLimit
 from users.serializers import RecipeSerializer
 from users.permissions import IsAuthorPermission
 from .models import Recipe, Favorite, Cart

@@ -97,11 +97,11 @@ class RecipeAndUserSerializerMixin(serializers.Serializer):
     )
     recipe = serializers.SlugRelatedField(
         queryset=Recipe.objects.all(),
-        slug_field='name',
+        slug_field='id',
     )
 
 
-class FavoriteSerializer(
+class FavoriteAddingSerializer(
     RecipeAndUserSerializerMixin,
     serializers.ModelSerializer,
 ):
@@ -120,7 +120,7 @@ class FavoriteSerializer(
         )
 
 
-class CartSerializer(
+class CartAddingSerializer(
     RecipeAndUserSerializerMixin,
     serializers.ModelSerializer,
 ):
@@ -138,6 +138,10 @@ class CartSerializer(
             ),
         )
 
+    def to_representation(self, instance):
+        print(isinstance)
+        return {'test': 'test'}
+
 
 class AmountSerializer(serializers.ModelSerializer):
     """Сериализатор количества ингредиентов."""
@@ -152,7 +156,7 @@ class AmountSerializer(serializers.ModelSerializer):
         }
 
 
-class RecipeCreatedSerializer(serializers.ModelSerializer):
+class RecipeCreatingSerializer(serializers.ModelSerializer):
     """Сериализатор создания рецептов."""
 
     image = Base64ImageField(required=False, allow_null=True)
@@ -191,21 +195,23 @@ class RecipeCreatedSerializer(serializers.ModelSerializer):
         return ingredient
 
     def create(self, data):
+        ingredients = data.pop('ingredients')
+        tags = data.pop('tags')
         recipe = Recipe.objects.create(
             author=self.context.get('request').user, **data
         )
-        return self._set_recipe_data(data, recipe)
+        return self._set_recipe_data(ingredients, recipe, tags)
 
     def update(self, recipe, data):
         AmountIngredient.objects.filter(recipe=recipe).delete()
-        return self._set_recipe_data(data, recipe)
+        ingredients = data.pop('ingredients')
+        tags = data.pop('tags')
+        return self._set_recipe_data(ingredients, recipe, tags)
 
     def to_representation(self, instance):
         return ListRecipeSerializer(instance).data
 
-    def _set_recipe_data(self, data, recipe):
-        ingredients = data.pop('ingredients')
-        tags = data.pop('tags')
+    def _set_recipe_data(self, ingredients, recipe, tags):
         AmountIngredient.objects.bulk_create(
             [
                 AmountIngredient(

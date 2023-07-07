@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
+from users.models import Subscription
 from .utils import (
     check_list_and_id_users,
     check_validate_data,
@@ -18,7 +19,7 @@ from .utils import (
 # Model User
 User = get_user_model()
 
-# consts
+# Consts
 USER_NUMS = 100
 LIMIT = 10
 INDEX = 20
@@ -211,3 +212,140 @@ class UsersAPITest(APITestCase):
             user__username=self.VALIDE_DATA_FOR_SIGNUP_USER.get('username')
         ).first()
         self.assertFalse(token, 'Токен пользователя не удаляется!')
+
+    def test_getting_subscriptions(self):
+        """Проверка получения списка подписок."""
+        url = self.URL + 'subscriptions/'
+        request = self.client.get(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            'Анонимный пользователь получает данные списка подписок!',
+        )
+        Subscription.objects.create(
+            user=self.user,
+            subscribed=User.objects.first(),
+        )
+        token = get_token(
+            self,
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('email'),
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('password'),
+        )
+        self.authorized_user.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+        request = self.authorized_user.get(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_200_OK,
+            (
+                f'Для {url} возвращается неверный код при '
+                'обращении пользователя с токеном!'
+            ),
+        )
+        result = request.json().get('results')[0]
+        check_validate_data(self, url, check_list_and_id_users, result)
+        self.assertTrue(
+            result.get('is_subscribed'),
+            'Пользователь не видит подписок!',
+        )
+
+    def test_subscription_user(self):
+        """Проверка подписки на пользователя."""
+        url = self.URL + f'{self.user.id - INDEX}/subscribe/'
+        request = self.client.post(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            (
+                'Анонимный пользователь может подписаться '
+                'на другого пользователя!'
+            ),
+        )
+        token = get_token(
+            self,
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('email'),
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('password'),
+        )
+        self.authorized_user.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+        request = self.authorized_user.post(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_201_CREATED,
+            (
+                f'Для {url} возвращается неверный код при '
+                'обращении пользователя с токеном! '
+                'Подписка на пользователя не работает!'
+            ),
+        )
+        url = self.URL + f'{self.user.id + INDEX}/subscribe/'
+        request = self.authorized_user.post(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_404_NOT_FOUND,
+            (
+                f'Для {url} возвращается неверный код '
+                'при обращении к несуществующей странице!'
+            ),
+        )
+        url = self.URL + f'{self.user.id}/subscribe/'
+        request = self.authorized_user.post(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_400_BAD_REQUEST,
+            (
+                f'Для {url} возвращается неверный код '
+                'при подписки на самого себя!'
+            ),
+        )
+
+    def test_deletion_subscription_user(self):
+        """Проверка удаления подписки на пользователя."""
+        url = self.URL + f'{self.user.id - INDEX}/subscribe/'
+        token = get_token(
+            self,
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('email'),
+            self.VALIDE_DATA_FOR_SIGNUP_USER.get('password'),
+        )
+        self.authorized_user.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+        self.authorized_user.post(url)
+        self.authorized_user.logout()
+        request = self.client.delete(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            (
+                'Анонимный пользователь может отписаться '
+                'от другого пользователя!'
+            ),
+        )
+        client = self.client
+        client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+        request = client.delete(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_204_NO_CONTENT,
+            (
+                f'Для {url} возвращается неверный код при '
+                'обращении пользователя с токеном! '
+                'Отписка от пользователя не работает!'
+            ),
+        )
+        url = self.URL + f'{self.user.id + INDEX}/subscribe/'
+        request = client.delete(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_404_NOT_FOUND,
+            (
+                f'Для {url} возвращается неверный код '
+                'при обращении к несуществующей странице!'
+            ),
+        )
+        url = self.URL + f'{self.user.id}/subscribe/'
+        request = client.delete(url)
+        self.assertEqual(
+            request.status_code,
+            status.HTTP_400_BAD_REQUEST,
+            (
+                f'Для {url} возвращается неверный код '
+                'при попытки удалить подписку на самого себя!'
+            ),
+        )

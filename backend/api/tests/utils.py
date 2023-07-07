@@ -64,8 +64,8 @@ invalid_data_by_signup_user = {
         'username': 'UserTestName',
         'first_name': 'TestFirstName',
         'last_name': 'TestLastName',
-        'password': 'Test1'
-    }
+        'password': 'Test1',
+    },
 }
 
 invalid_data_change_password = (
@@ -93,7 +93,7 @@ def check_validate_data(cls, url, data, result):
                 )
 
 
-def check_page(cls, url, request):
+def check_page(cls, url, request, limit):
     """Проверка пагинации."""
     data = ('count', 'next', 'previous', 'results')
     for value in data:
@@ -103,6 +103,12 @@ def check_page(cls, url, request):
                 request.json(),
                 f'Пагинация работает неправильно для {url}!',
             )
+    results = request.json().get('results')
+    cls.assertEqual(
+        len(results),
+        limit,
+        f'Для {cls.URL} не работает пагинация!',
+    )
 
 
 def get_token(cls, email, password):

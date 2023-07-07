@@ -39,6 +39,7 @@ class UsersAPITest(APITestCase):
         'new_password': 'TestNewPassword12',
         'current_password': 'TestPassword!3842_13',
     }
+    USERNAME = 'TestUsername'
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -46,7 +47,7 @@ class UsersAPITest(APITestCase):
         User.objects.bulk_create(
             [
                 User(
-                    username=f'TestUsername{i}',
+                    username=f'{cls.USERNAME}{i}',
                     email=f'test{i}email@email.ml',
                     last_name='TestLastName',
                     first_name='TestFirstName',
@@ -73,13 +74,8 @@ class UsersAPITest(APITestCase):
             status.HTTP_200_OK,
             f'Возвращается неверный статус при обращении к {self.URL}',
         )
-        check_page(self, self.URL, request)
+        check_page(self, self.URL, request, LIMIT)
         results = request.json().get('results')
-        self.assertEqual(
-            len(results),
-            LIMIT,
-            f'Для {self.URL} не работает пагинация!',
-        )
         check_validate_data(
             self, self.URL, check_list_and_id_users, results[0]
         )
@@ -222,9 +218,16 @@ class UsersAPITest(APITestCase):
             status.HTTP_401_UNAUTHORIZED,
             'Анонимный пользователь получает данные списка подписок!',
         )
-        Subscription.objects.create(
-            user=self.user,
-            subscribed=User.objects.first(),
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    user=self.user,
+                    subscribed=User.objects.filter(
+                        username=f'{self.USERNAME}{i}'
+                    ).first(),
+                )
+                for i in range(USER_NUMS)
+            ]
         )
         token = get_token(
             self,
@@ -241,10 +244,11 @@ class UsersAPITest(APITestCase):
                 'обращении пользователя с токеном!'
             ),
         )
-        result = request.json().get('results')[0]
-        check_validate_data(self, url, check_list_and_id_users, result)
+        check_page(self, self.URL, request, LIMIT)
+        results = request.json().get('results')
+        check_validate_data(self, url, check_list_and_id_users, results[0])
         self.assertTrue(
-            result.get('is_subscribed'),
+            results[0].get('is_subscribed'),
             'Пользователь не видит подписок!',
         )
 

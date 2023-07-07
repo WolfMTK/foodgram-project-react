@@ -62,6 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .annotate(amount=Sum('amount'))
         )
         pdf_gen = PDFGeneratedCartList()
+        pdf_gen.register_font()
         pdf_gen.set_title(request.user)
         pdf_gen.set_table(ingredients)
         pdf_gen.build()

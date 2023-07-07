@@ -27,7 +27,6 @@ class PDFGeneratedCartList:
         self.__font_size = 14
         self.__story: list[Any] = []
         self.__doc = SimpleDocTemplate(self.__buffer, pagesize=A4)
-        self._register_font()
 
     @property
     def buffer(self) -> io.BytesIO:
@@ -110,6 +109,10 @@ class PDFGeneratedCartList:
         )
         self.__story.append(table)
 
+    def register_font(self) -> None:
+        font_name, ttx = self.font_name
+        pdfmetrics.registerFont(TTFont(font_name, ttx, 'UTF-8'))
+
     def build(self) -> None:
         self.__doc.build(self.__story)
 
@@ -117,10 +120,6 @@ class PDFGeneratedCartList:
         styles = getSampleStyleSheet()
         style_paragraph = styles['Normal']
         return style_paragraph
-
-    def _register_font(self) -> None:
-        font_name, ttx = self.font_name
-        pdfmetrics.registerFont(TTFont(font_name, ttx, 'UTF-8'))
 
     def _correct_data(self, value_query: Any) -> list[list[str]]:
         data = [['Название ингредиентов', 'Единицы измерения', 'Количество']]

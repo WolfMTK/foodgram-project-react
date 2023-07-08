@@ -151,9 +151,6 @@ class AmountSerializer(serializers.ModelSerializer):
     class Meta:
         model = AmountIngredient
         fields = ('id', 'amount')
-        extra_kwargs = {
-            'amount': {'write_only': True},
-        }
 
 
 class RecipeCreatingSerializer(serializers.ModelSerializer):
@@ -164,7 +161,7 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all(),
     )
-    ingredients = AmountSerializer(many=True)
+    ingredients = AmountSerializer(many=True, write_only=True)
 
     class Meta:
         model = Recipe
@@ -180,6 +177,8 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
             'cooking_time': {'write_only': True},
             'name': {'write_only': True},
             'text': {'write_only': True},
+            'image': {'write_only': True},
+            'tags': {'write_only': True},
         }
 
     def validate_tags(self, tag):
@@ -195,6 +194,7 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
         return ingredient
 
     def create(self, data):
+        print(data)
         ingredients = data.pop('ingredients')
         tags = data.pop('tags')
         recipe = Recipe.objects.create(

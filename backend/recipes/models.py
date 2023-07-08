@@ -36,10 +36,16 @@ class Recipe(models.Model):
         validators=(MinValueValidator(1),),
         verbose_name='Время приготовления (в минутах)',
     )
+    created = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='Дата создания',
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ['-created']
 
     def __str__(self):
         return self.name

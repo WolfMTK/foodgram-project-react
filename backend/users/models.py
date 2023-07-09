@@ -31,6 +31,7 @@ class User(AbstractUser):
         blank=True,
         verbose_name='Фамилия',
     )
+    USERNAME_FIELD = 'username'
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -64,4 +65,8 @@ class Subscription(models.Model):
                 name='unique_subscription',
                 fields=['user', 'subscribed'],
             ),
+            models.CheckConstraint(
+                check=models.Q(user=models.F('subscribed')),
+                name='check_user'
+            )
         ]

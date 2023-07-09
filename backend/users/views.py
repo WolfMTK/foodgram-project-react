@@ -12,8 +12,6 @@ class CustomUserViewSet(UserViewSet):
 
     pagination_class = PageNumberAndLimit
 
-    # Переопределил метод из-за GET запроса,
-    # Или не нужно было так делать?
     @decorators.action(detail=False, methods=('get',))
     def me(self, request, *args, **kwargs):
         return response.Response(
@@ -60,7 +58,6 @@ class CustomUserViewSet(UserViewSet):
             return UserSubscriptionSerializer
         return super().get_serializer_class()
 
-    # Или всё же в subscribe это добавить, а не отдельным методом?
     def _get_subscribe_data(self, request, subscribed, *args, **kwargs):
         serializer = self.get_serializer(
             data={

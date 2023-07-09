@@ -4,8 +4,8 @@ from django.db.models import Sum
 from django.http import FileResponse
 
 from services.pagination import PageNumberAndLimit
-from users.serializers import RecipeSerializer
-from users.permissions import IsAuthorPermission
+from users.serializers import UserRecipeSerializer
+from api.permissions import IsAuthorPermission
 from services.pdf_gen import PDFGeneratedCartList
 from .models import Recipe, Favorite, Cart, AmountIngredient
 from .serializers import (
@@ -90,6 +90,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response(
-            RecipeSerializer(recipe).data,
+            UserRecipeSerializer(recipe).data,
             status.HTTP_201_CREATED,
         )

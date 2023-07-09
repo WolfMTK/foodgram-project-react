@@ -1,6 +1,7 @@
 from djoser.serializers import UserSerializer
 from rest_framework import serializers, validators
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.conf import settings
 
 from services.validations import validate_password
 from recipes.models import Recipe
@@ -39,14 +40,12 @@ class UserCreateMixin:
             raise serializers.ValidationError(
                 {'error': 'Пользователь с таким username уже существует!'}
             )
-        elif len(username) < 4:
+        elif len(username) < settings.LEN_USERNAME:
             raise serializers.ValidationError(
                 {'error': 'username не может быть меньше 4!'}
             )
         return username
 
-    # Или лучше было не выносить отдельно в
-    # функцию validate_password проверку пароля?
     def validate_password(self, password):
         validate_password(password)
         return password
@@ -62,8 +61,6 @@ class UserModelSerializer(SubscriptionMixin, UserCreateMixin, UserSerializer):
     email = serializers.EmailField(max_length=254)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
-    # is_subscribed вынести тоже в миксин?
-    # Или так оставить лучше?
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -113,8 +110,8 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор рецептов."""
+class UserRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор рецептов пользователя."""
 
     class Meta:
         model = Recipe
@@ -134,7 +131,7 @@ class SubscriptionSerializer(
 
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-    recipes = RecipeSerializer(many=True, read_only=True)
+    recipes = UserRecipeSerializer(many=True, read_only=True)
 
     class Meta:
         model = User

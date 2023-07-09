@@ -152,3 +152,6 @@ DJOSER = {
         'current_user': ('rest_framework.permissions.IsAuthenticated',),
     },
 }
+
+# Consts
+LEN_USERNAME = 4

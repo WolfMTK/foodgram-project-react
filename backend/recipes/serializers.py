@@ -6,8 +6,7 @@ from django.core.files.base import ContentFile
 
 from users.serializers import UserModelSerializer
 from users.models import User
-from ingredients.models import Ingredient
-from .models import Recipe, AmountIngredient, Favorite, Cart, Tag
+from .models import Recipe, AmountIngredient, Favorite, Cart, Tag, Ingredient
 
 
 class Hex2NameColor(serializers.Field):
@@ -22,6 +21,14 @@ class Hex2NameColor(serializers.Field):
         except ValueError:
             raise serializers.ValidationError('Для этого цвета нет имени!')
         return data
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор ингредиентов."""
+
+    class Meta:
+        model = Ingredient
+        fields = '__all__'
 
 
 class TagSerializer(serializers.ModelSerializer):

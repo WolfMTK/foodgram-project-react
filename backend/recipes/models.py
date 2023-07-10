@@ -55,8 +55,6 @@ class Recipe(models.Model):
         default=None,
     )
     cooking_time = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=(MinValueValidator(1),),
         verbose_name='Время приготовления (в минутах)',
     )
@@ -139,8 +137,6 @@ class AmountIngredient(models.Model):
         verbose_name='Рецепт',
     )
     amount = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=(MinValueValidator(1),),
         verbose_name='Количество',
     )

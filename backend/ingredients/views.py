@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions
 
-from services.filters import BackendSearchFilter
+from api.filters import BackendSearchFilter
 from .models import Ingredient
 from .serializers import IngredientSerializer
 

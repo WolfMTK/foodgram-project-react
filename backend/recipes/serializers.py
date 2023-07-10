@@ -200,17 +200,31 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
             'tags': {'write_only': True},
         }
 
-    def validate_tags(self, tag):
-        if not tag:
+    def validate_tags(self, tags):
+        if not tags:
             return serializers.ValidationError({'error': 'Тег отсутсвует!'})
-        return tag
+        if len(tags) != len(set(tags)):
+            return serializers.ValidationError(
+                {'error': 'Тег не должен повторяться!'}
+            )
+        return tags
 
-    def validate_ingredients(self, ingredient):
-        if not ingredient:
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
             return serializers.ValidationError(
                 {'error': 'Ингредиент отсутсвует!'}
             )
-        return ingredient
+        for ingredient in ingredients:
+            if ingredient.get('amount') < 0:
+                return serializers.ValidationError(
+                    {
+                        'error': (
+                            'Количество ингредиентов не '
+                            'должно быть меньше 1!'
+                        )
+                    }
+                )
+        return ingredients
 
     def create(self, data):
         ingredients = data.pop('ingredients')

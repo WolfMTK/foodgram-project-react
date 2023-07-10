@@ -2,7 +2,7 @@ from rest_framework import response, status, decorators, permissions
 from rest_framework.generics import get_object_or_404
 from djoser.views import UserViewSet
 
-from services.pagination import PageNumberAndLimit
+from api.pagination import PageNumberAndLimit
 from .serializers import SubscriptionSerializer, UserSubscriptionSerializer
 from .models import Subscription, User
 

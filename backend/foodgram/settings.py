@@ -34,9 +34,10 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'colorfield',
 ]
 
-LOCAL_APPS = ['users', 'tags', 'ingredients', 'recipes', 'api']
+LOCAL_APPS = ['users', 'ingredients', 'recipes', 'api']
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -133,6 +134,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'PAGE_SIZE': 10,
 }
 
 # Djoser
@@ -155,3 +157,4 @@ DJOSER = {
 
 # Consts
 LEN_USERNAME = 4
+LEN_PASSWORD = 6

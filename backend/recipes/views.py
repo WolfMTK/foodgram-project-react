@@ -3,18 +3,30 @@ from rest_framework.generics import get_object_or_404
 from django.db.models import Sum
 from django.http import FileResponse
 
+from api.filters import BackendSearchFilter
 from api.pagination import PageNumberAndLimit
 from users.serializers import UserRecipeSerializer
 from api.permissions import IsAuthorPermission
 from services.pdf_gen import PDFGeneratedCartList
-from .models import Recipe, Favorite, Cart, AmountIngredient, Tag
+from .models import Recipe, Favorite, Cart, AmountIngredient, Tag, Ingredient
 from .serializers import (
     ListRecipeSerializer,
     RecipeCreatingSerializer,
     FavoriteAddingSerializer,
     CartAddingSerializer,
     TagSerializer,
+    IngredientSerializer,
 )
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet ингредиентов."""
+
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = (permissions.AllowAny,)
+    filter_backends = (BackendSearchFilter,)
+    search_fields = ('$name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

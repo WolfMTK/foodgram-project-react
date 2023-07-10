@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from colorfield import fields
 
-from ingredients.models import Ingredient
-
 User = get_user_model()
 
 
@@ -27,6 +25,23 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
+
+
+class Ingredient(models.Model):
+    """Модель ингредиентов."""
+
+    name = models.CharField(max_length=200, verbose_name='Название')
+    measurement_unit = models.CharField(
+        max_length=10,
+        verbose_name='Единицы измерения',
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return self.name

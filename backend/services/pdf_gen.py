@@ -1,5 +1,5 @@
 import io
-from typing import Optional, TypeVar, Any
+from typing import Optional, Any
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -12,8 +12,6 @@ from reportlab.lib.styles import (
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.enums import TA_CENTER
 from reportlab.platypus.tables import Table, TableStyle, colors
-
-T = TypeVar('T')
 
 
 class PDFGeneratedCartList:
@@ -58,7 +56,7 @@ class PDFGeneratedCartList:
     def font_size(self, value: int) -> None:
         self.__font_size = value
 
-    def set_title(self, user_name: Optional[T] = None) -> None:
+    def set_title(self, user_name: Optional[str] = None) -> None:
         if user_name:
             text = f'Список покупок пользователя: {user_name}.'
         else:

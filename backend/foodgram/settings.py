@@ -12,7 +12,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='secret_key_django')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
@@ -37,7 +37,7 @@ THIRD_PARTY_APPS = [
     'colorfield',
 ]
 
-LOCAL_APPS = ['users', 'ingredients', 'recipes', 'api']
+LOCAL_APPS = ['users', 'recipes', 'api']
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

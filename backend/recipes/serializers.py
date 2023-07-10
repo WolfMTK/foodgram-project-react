@@ -1,13 +1,37 @@
 import base64
 
+import webcolors
 from rest_framework import serializers, validators
 from django.core.files.base import ContentFile
 
-from tags.serializers import TagSerializer
 from users.serializers import UserModelSerializer
 from users.models import User
 from ingredients.models import Ingredient
 from .models import Recipe, AmountIngredient, Favorite, Cart, Tag
+
+
+class Hex2NameColor(serializers.Field):
+    """Поле цвета."""
+
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            data = webcolors.hex_to_name(data)
+        except ValueError:
+            raise serializers.ValidationError('Для этого цвета нет имени!')
+        return data
+
+
+class TagSerializer(serializers.ModelSerializer):
+    """Сериализатор тегов."""
+
+    color = Hex2NameColor()
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class Base64ImageField(serializers.ImageField):
@@ -86,7 +110,6 @@ class ListRecipeSerializer(serializers.ModelSerializer):
         return model.objects.filter(user=user, recipe=obj).exists()
 
 
-# Или лучше было отдельно не создавать класс с полями?
 class RecipeAndUserSerializerMixin(serializers.Serializer):
     """Миксин рецептов и пользователей."""
 
@@ -137,10 +160,6 @@ class CartAddingSerializer(
                 message='Рецепт добавлен в список покупок!',
             ),
         )
-
-    def to_representation(self, instance):
-        print(isinstance)
-        return {'test': 'test'}
 
 
 class AmountSerializer(serializers.ModelSerializer):
@@ -194,7 +213,6 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
         return ingredient
 
     def create(self, data):
-        print(data)
         ingredients = data.pop('ingredients')
         tags = data.pop('tags')
         recipe = Recipe.objects.create(

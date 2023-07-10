@@ -3,17 +3,26 @@ from rest_framework.generics import get_object_or_404
 from django.db.models import Sum
 from django.http import FileResponse
 
-from services.pagination import PageNumberAndLimit
+from api.pagination import PageNumberAndLimit
 from users.serializers import UserRecipeSerializer
 from api.permissions import IsAuthorPermission
 from services.pdf_gen import PDFGeneratedCartList
-from .models import Recipe, Favorite, Cart, AmountIngredient
+from .models import Recipe, Favorite, Cart, AmountIngredient, Tag
 from .serializers import (
     ListRecipeSerializer,
     RecipeCreatingSerializer,
     FavoriteAddingSerializer,
     CartAddingSerializer,
+    TagSerializer,
 )
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet тегов."""
+
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (permissions.AllowAny,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

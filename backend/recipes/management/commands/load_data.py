@@ -4,7 +4,7 @@ from csv import reader
 
 from django.core.management import BaseCommand
 
-from ingredients.models import Ingredient
+from recipes.models import Ingredient
 from .exceptions import PathDirError
 
 

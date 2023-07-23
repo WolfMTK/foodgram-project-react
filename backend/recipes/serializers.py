@@ -209,21 +209,27 @@ class RecipeCreatingSerializer(serializers.ModelSerializer):
 
     def validate_tags(self, tags):
         if not tags:
-            return serializers.ValidationError({'error': 'Тег отсутсвует!'})
+            raise serializers.ValidationError({'error': 'Тег отсутсвует!'})
         if len(tags) != len(set(tags)):
-            return serializers.ValidationError(
+            raise serializers.ValidationError(
                 {'error': 'Тег не должен повторяться!'}
             )
         return tags
 
     def validate_ingredients(self, ingredients):
         if not ingredients:
-            return serializers.ValidationError(
+            raise serializers.ValidationError(
                 {'error': 'Ингредиент отсутсвует!'}
+            )
+        set_ingredients = {value.get('id') for value in ingredients}
+        list_ingredients = [value.get('id') for value in ingredients]
+        if len(set_ingredients) != len(list_ingredients):
+            raise serializers.ValidationError(
+                {'error': 'Ингредиент не должен повторяться!'}
             )
         for ingredient in ingredients:
             if ingredient.get('amount') < 0:
-                return serializers.ValidationError(
+                raise serializers.ValidationError(
                     {
                         'error': (
                             'Количество ингредиентов не '

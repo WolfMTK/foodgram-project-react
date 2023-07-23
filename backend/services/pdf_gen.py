@@ -19,8 +19,8 @@ class PDFGeneratedCartList:
 
     def __init__(self) -> None:
         self.__buffer = io.BytesIO()
-        self.__font_name = 'Times New Roman'
-        self.__font_name_ttf = 'times.ttf'
+        self.__font_name = 'DejaVuSans'
+        self.__font_name_ttf = 'DejaVuSans.ttf'
         self.__font_title_size = 16
         self.__font_size = 14
         self.__story: list[Any] = []

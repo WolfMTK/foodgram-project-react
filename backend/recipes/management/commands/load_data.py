@@ -31,10 +31,9 @@ class Command(BaseCommand):
         with open(
             f'{path}ingredients.csv', mode='r', encoding='utf-8'
         ) as file:
-            read_file = reader(file)
-            if next(read_file) in ['name', 'measurement_unit']:
-                file = read_file
             for row in reader(file):
+                if row == ['name', 'measurement_unit']:
+                    continue
                 Ingredient.objects.get_or_create(
                     name=row[0], measurement_unit=row[1]
                 )

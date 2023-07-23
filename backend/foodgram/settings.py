@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # environ settings
 env = environ.Env(DEBUG=(bool, False))
 
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='secret_key_django')
@@ -76,10 +76,11 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='db'),
-        'USER': env('USER_DB', default='user'),
-        'PASSWORD': env('PASSWORD_DB', default='password'),
-        'PORT': env('PORT_DB', default=3194),
+        'NAME': env('POSTGRES_DB', default='db'),
+        'USER': env('POSTGRES_USER', default='user'),
+        'PASSWORD': env('POSTGRES_PASSWORD', default='password'),
+        'HOST': env('DB_HOST', default=''),
+        'PORT': env('DB_PORT', default=3194),
     }
 }
 
@@ -115,6 +116,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 # Media
 MEDIA_URL = '/media/'

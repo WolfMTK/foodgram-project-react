@@ -9,13 +9,15 @@
 
 1. Запустите Docker Compose (для linux от `sudo` вводить команды): `docker compose -f docker-compose.production.yml up`
 
-2. Проверить, что страница заработала:
+2. Проверьте, что страница заработала:
 
 `http://localhost:8080/`
 
 `http://localhost:8080/api/`
 
 `http://localhost:8080/admin/`
+
+`http://localhost:8080/api/docs/`
 
 ### Вход в админку
 

@@ -1,5 +1,7 @@
 from rest_framework import filters
-from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import (FilterSet,
+                                           AllValuesMultipleFilter,
+                                           BooleanFilter)
 
 from recipes.models import Recipe
 
@@ -13,9 +15,9 @@ class BackendSearchFilter(filters.SearchFilter):
 class RecipeFilter(FilterSet):
     """Фильтр рецептов."""
 
-    tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
-    is_favorited = filters.BooleanFilter(method='get_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(method='get_shopping_cart')
+    tags = AllValuesMultipleFilter(field_name='tags__slug')
+    is_favorited = BooleanFilter(method='get_favorited')
+    is_in_shopping_cart = BooleanFilter(method='get_shopping_cart')
 
     class Meta:
         model = Recipe

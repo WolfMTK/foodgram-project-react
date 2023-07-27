@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'colorfield',
+    'django_filters',
 ]
 
 LOCAL_APPS = ['users', 'recipes', 'api']

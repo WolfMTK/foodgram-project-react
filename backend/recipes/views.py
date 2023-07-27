@@ -2,8 +2,9 @@ from rest_framework import viewsets, permissions, decorators, response, status
 from rest_framework.generics import get_object_or_404
 from django.db.models import Sum
 from django.http import FileResponse
+from django_filters.rest_framework import DjangoFilterBackend
 
-from api.filters import BackendSearchFilter
+from api.filters import BackendSearchFilter, RecipeFilter
 from api.pagination import PageNumberAndLimit
 from users.serializers import UserRecipeSerializer
 from api.permissions import IsAuthorPermission
@@ -44,6 +45,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = PageNumberAndLimit
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     @decorators.action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk=None, *args, **kwargs):

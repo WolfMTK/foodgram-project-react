@@ -20,4 +20,9 @@
 ### Вход в админку
 
 Логин: Alexander
+
 Пароль: Dbu7-Qskf12_sifs12
+
+### Пример заполнения файла .env
+
+Пример заполнения: [.env](https://github.com/WolfMTK/foodgram-project-react/blob/master/.env.example)

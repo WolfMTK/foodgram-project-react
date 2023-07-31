@@ -36,7 +36,7 @@
 
 `docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser`
 
-2. Загрузка данных (рецепты):
+2. Загрузка данных (ингредиенты):
 
 `docker compose -f docker-compose.production.yml exec backend python manage.py load_data -p path_ingredients_csv`
 
